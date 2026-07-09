@@ -1,6 +1,6 @@
-# Contributing to Tor
+# Contributing to tor
 
-Thanks for considering a contribution. Tor is just a Caddyfile and a
+Thanks for considering a contribution. tor is just a Caddyfile and a
 docker-compose.yml fronting the other three Schloss services — please keep
 changes focused.
 

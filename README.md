@@ -1,9 +1,9 @@
-# Tor
+# tor
 
 [![Test](https://github.com/zudaR107/tor/actions/workflows/test.yml/badge.svg)](https://github.com/zudaR107/tor/actions/workflows/test.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
-Tor ("gate" in German) is the single-entrypoint reverse-proxy gateway for
+tor ("gate" in German) is the single-entrypoint reverse-proxy gateway for
 the Schloss platform. It fronts all three services by subdomain so nobody
 needs to remember or type a port.
 
@@ -20,7 +20,7 @@ does:
 - [`kuvert`](https://github.com/zudaR107/kuvert) — envelope budgeting
 - **`tor`** (this repo) — the gateway all of the above sit behind
 
-Tor ships no application code of its own — just a Caddyfile and a
+tor ships no application code of its own — just a Caddyfile and a
 docker-compose.yml. It routes by `Host:` header to each service's own
 existing Caddy-fronted web image (each already serves from `/` on its
 internal port `80`), so none of the other three repos needed any code
@@ -54,7 +54,7 @@ via `include:` pulling in each sibling repo's own `docker-compose.yml`.
 Each repo's own `docker-compose.yml` still works on its own for isolated
 development of just that service (still needs the shared `schloss-net`
 network created once, and the other services it depends on already
-running, same as before Tor existed).
+running, same as before tor existed).
 
 ## Production
 
