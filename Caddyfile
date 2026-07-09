@@ -1,0 +1,11 @@
+{$DOMAIN:localhost} {
+	reverse_proxy schloss:80
+}
+
+auth.{$DOMAIN:localhost} {
+	reverse_proxy schlussel-web:80
+}
+
+kuvert.{$DOMAIN:localhost} {
+	reverse_proxy kuvert-web:80
+}

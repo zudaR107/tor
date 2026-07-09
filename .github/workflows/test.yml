@@ -1,0 +1,38 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: Tor
+
+      - uses: actions/checkout@v7
+        with:
+          repository: zudaR107/schlussel
+          path: schlussel
+
+      - uses: actions/checkout@v7
+        with:
+          repository: zudaR107/schloss
+          path: schloss
+
+      - uses: actions/checkout@v7
+        with:
+          repository: zudaR107/kuvert
+          path: kuvert
+
+      - name: Validate Caddyfile
+        run: >
+          docker run --rm -v "$PWD/Tor/Caddyfile:/etc/caddy/Caddyfile:ro"
+          caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
+
+      - name: Validate docker-compose.yml against sibling checkouts
+        working-directory: Tor
+        run: docker compose config >/dev/null

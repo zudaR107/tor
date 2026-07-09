@@ -1,0 +1,36 @@
+# One-time setup, before first `docker compose up`:
+#   docker network create schloss-net
+#
+# Starts the entire platform from here: this file pulls in each sibling
+# repo's own docker-compose.yml via `include:` (paths are relative to this
+# file, assuming the standard layout where schlussel/, schloss/, kuvert/,
+# and Tor/ are sibling directories) and fronts all of them with a single
+# Caddy gateway that routes by subdomain - nothing else needs a published
+# host port. Each repo's own compose file still works standalone for
+# isolated single-service development.
+include:
+  - path: ../schlussel/docker-compose.yml
+  - path: ../schloss/docker-compose.yml
+  - path: ../kuvert/docker-compose.yml
+
+services:
+  gateway:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    networks:
+      - schloss-net
+
+volumes:
+  caddy-data:
+
+networks:
+  schloss-net:
+    external: true
