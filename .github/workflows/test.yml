@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          path: Tor
+          path: tor
 
       - uses: actions/checkout@v7
         with:
@@ -30,9 +30,9 @@ jobs:
 
       - name: Validate Caddyfile
         run: >
-          docker run --rm -v "$PWD/Tor/Caddyfile:/etc/caddy/Caddyfile:ro"
+          docker run --rm -v "$PWD/tor/Caddyfile:/etc/caddy/Caddyfile:ro"
           caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
 
       - name: Validate docker-compose.yml against sibling checkouts
-        working-directory: Tor
+        working-directory: tor
         run: docker compose config >/dev/null
