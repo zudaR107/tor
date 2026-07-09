@@ -10,7 +10,10 @@ fit best; add a new section if none fits.
   startup for the whole platform.
 
 ## Docs
-- Repo renamed from `Tor` to `tor` for slug consistency with the other
-  three services.
+- Repo slug renamed to lowercase for consistency with the other three
+  services - the project name is now written lowercase everywhere,
+  including at the start of sentences.
 - License/CI badges, a link to the Hof meta-repo, `.env.production.example`
   for real-domain deployment, and a missing `.gitignore` for `.env`.
+- Fixed remaining prose mentions of the project name to lowercase "tor"
+  throughout README.md and CONTRIBUTING.md, including at sentence starts.
