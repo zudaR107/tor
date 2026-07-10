@@ -17,3 +17,5 @@ fit best; add a new section if none fits.
   for real-domain deployment, and a missing `.gitignore` for `.env`.
 - Fixed remaining prose mentions of the project name to lowercase "tor"
   throughout README.md and CONTRIBUTING.md, including at sentence starts.
+- Added CODE_OF_CONDUCT.md, SECURITY.md, issue templates, and a pull
+  request template.
