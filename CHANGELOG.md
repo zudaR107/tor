@@ -13,6 +13,11 @@ fit best; add a new section if none fits.
   `SCHLUSSEL_WEB_URL`) from `http://` to `https://` - Caddy's automatic
   HTTPS upgrades every request here, so the old defaults failed the
   return_to allowlist for anyone copying this file as-is.
+- Split `ALLOWED_ORIGINS` into `SCHLUSSEL_ALLOWED_ORIGINS` and
+  `KUVERT_ALLOWED_ORIGINS` in `.env.example`/`.env.production.example` -
+  one shared name fed the same value into both schlussel and kuvert-api's
+  compose files, silently overriding kuvert-api's own CORS allowlist.
+  Requires schlussel#46 and kuvert#59's matching compose var renames.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
