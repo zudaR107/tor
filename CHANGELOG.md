@@ -8,6 +8,11 @@ fit best; add a new section if none fits.
 - Initial subdomain-routing Caddy gateway fronting schloss, schlussel, and
   kuvert behind a single host port, with `include:`-based one-command
   startup for the whole platform.
+- Fixed `.env.example`'s origin defaults (`ALLOWED_ORIGINS`,
+  `ALLOWED_RETURN_ORIGINS`, `DEFAULT_APP_URL`, `KUVERT_URL`,
+  `SCHLUSSEL_WEB_URL`) from `http://` to `https://` - Caddy's automatic
+  HTTPS upgrades every request here, so the old defaults failed the
+  return_to allowlist for anyone copying this file as-is.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
