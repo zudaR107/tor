@@ -18,6 +18,9 @@ fit best; add a new section if none fits.
   one shared name fed the same value into both schlussel and kuvert-api's
   compose files, silently overriding kuvert-api's own CORS allowlist.
   Requires schlussel#46 and kuvert#59's matching compose var renames.
+- Added `SCHLOSS_URL` to `.env.example`/`.env.production.example` -
+  kuvert's new header needs a URL to link back to schloss's home page,
+  which no existing var covered (the others all point the other way).
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
