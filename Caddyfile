@@ -1,12 +1,28 @@
+# Baseline hardening headers, shared by the three real sites below (not
+# the catch-all, which only ever redirects). None of these apps expect to
+# be embedded in another site, so frame-ancestors is 'none' rather than
+# 'self'.
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "frame-ancestors 'none'"
+	}
+}
+
 {$DOMAIN:localhost} {
+	import security_headers
 	reverse_proxy schloss:80
 }
 
 auth.{$DOMAIN:localhost} {
+	import security_headers
 	reverse_proxy schlussel-web:80
 }
 
 kuvert.{$DOMAIN:localhost} {
+	import security_headers
 	reverse_proxy kuvert-web:80
 }
 
