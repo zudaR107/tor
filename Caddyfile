@@ -9,3 +9,16 @@ auth.{$DOMAIN:localhost} {
 kuvert.{$DOMAIN:localhost} {
 	reverse_proxy kuvert-web:80
 }
+
+# Catch-all for any other subdomain (typos, old/removed services) - without
+# this, Caddy has no certificate to present for an SNI it doesn't
+# recognize and the TLS handshake itself fails (a bare alert, not even an
+# HTTP response the browser can render a normal warning for). `tls
+# internal` here issues one wildcard cert eagerly at startup covering
+# every subdomain, same local CA as the three sites above; Caddy still
+# routes the three exact hostnames above to their own site block first,
+# this only catches what's left over.
+*.{$DOMAIN:localhost} {
+	tls internal
+	redir https://{$DOMAIN:localhost}{uri}
+}
