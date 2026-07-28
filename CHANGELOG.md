@@ -29,6 +29,10 @@ fit best; add a new section if none fits.
   could happen. Added a catch-all `*.{$DOMAIN}` site with `tls internal`
   (one wildcard cert, same local CA as the other three sites) redirecting
   to the main site.
+- Security audit finding: no response security headers were set anywhere
+  (no HSTS, X-Content-Type-Options, Referrer-Policy, or frame-ancestors).
+  Added a shared snippet with all four, imported by the three real site
+  blocks (not the catch-all, which only ever redirects).
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
