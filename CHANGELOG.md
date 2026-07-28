@@ -21,6 +21,14 @@ fit best; add a new section if none fits.
 - Added `SCHLOSS_URL` to `.env.example`/`.env.production.example` -
   kuvert's new header needs a URL to link back to schloss's home page,
   which no existing var covered (the others all point the other way).
+- Fixed the TLS handshake failing outright (`SSL_ERROR_INTERNAL_ERROR_ALERT`
+  in Firefox) on any subdomain that isn't one of the three declared sites
+  (e.g. a typo'd `schlussel.localhost`) - Caddy only eagerly provisions
+  certs for the three declared hostnames, so it had nothing to present for
+  an unrecognized SNI and aborted the handshake before any HTTP routing
+  could happen. Added a catch-all `*.{$DOMAIN}` site with `tls internal`
+  (one wildcard cert, same local CA as the other three sites) redirecting
+  to the main site.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
