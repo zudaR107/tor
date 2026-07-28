@@ -42,12 +42,45 @@ docker compose up -d --build
 That's it — this one command starts all three services plus the gateway,
 via `include:` pulling in each sibling repo's own `docker-compose.yml`.
 
-- `http://localhost` — Schloss (home)
-- `http://auth.localhost` — Schlüssel (login/register)
-- `http://kuvert.localhost` — Kuvert
+- `https://localhost` — Schloss (home)
+- `https://auth.localhost` — Schlüssel (login/register)
+- `https://kuvert.localhost` — Kuvert
 
 `*.localhost` resolves to `127.0.0.1` automatically in every modern browser
-— no `/etc/hosts` editing needed.
+— no `/etc/hosts` editing needed. Caddy auto-upgrades these to HTTPS; since
+`localhost` can't get a real Let's Encrypt certificate, it signs them with
+its own local CA instead (see below - one-time browser setup needed).
+
+### Trusting the local HTTPS certificate (one-time, local dev only)
+
+The gateway's certs for `*.localhost` are signed by a CA Caddy generates
+itself and stores in the `caddy-data` volume - your browser doesn't know
+about it yet, so the first visit shows a certificate warning
+(`SEC_ERROR_UNKNOWN_ISSUER` in Firefox, "Not secure" in Chrome). Trust it
+once per machine:
+
+```sh
+docker compose exec gateway \
+  cat /data/caddy/pki/authorities/local/root.crt > caddy-local-root.crt
+```
+
+**Firefox**: `about:preferences#privacy` → scroll to Certificates → *View
+Certificates* → *Authorities* tab → *Import…* → select `caddy-local-root.crt`
+→ check *"Trust this CA to identify websites"* → OK. Restart Firefox.
+
+**Chrome/system trust store** (Linux): `sudo cp caddy-local-root.crt
+/usr/local/share/ca-certificates/caddy-local-root.crt.crt && sudo
+update-ca-certificates` (Debian/Ubuntu; other distros use their own
+equivalent), then restart the browser. macOS: import into Keychain Access
+(System keychain, "Always Trust"). Windows: import via `certutil -addstore
+-f "ROOT" caddy-local-root.crt` or the Certificates MMC snap-in.
+
+This only needs to happen again if the `caddy-data` volume is ever removed
+(e.g. `docker compose down -v`, or `docker volume rm caddy-data`) - that
+regenerates the CA with a new key, and the old trusted entry needs
+replacing (delete the old "Caddy Local Authority" entry first, then import
+the new `root.crt`, or you'll see `SEC_ERROR_BAD_SIGNATURE` instead of the
+usual unknown-issuer warning).
 
 ### Running a single service standalone
 

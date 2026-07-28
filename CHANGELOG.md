@@ -32,3 +32,10 @@ fit best; add a new section if none fits.
   throughout README.md and CONTRIBUTING.md, including at sentence starts.
 - Added CODE_OF_CONDUCT.md, SECURITY.md, issue templates, and a pull
   request template.
+- Documented the one-time step of trusting Caddy's local HTTPS CA in the
+  browser for local dev (`*.localhost` can't get a real Let's Encrypt cert),
+  including how to re-trust it if `caddy-data` ever gets wiped and the CA
+  regenerates with a new key (previously undocumented, discovered when a
+  wiped volume produced a `SEC_ERROR_BAD_SIGNATURE` instead of the usual
+  unknown-issuer warning). Fixed the README's example URLs from `http://` to
+  `https://` to match Caddy's actual automatic upgrade behavior.
