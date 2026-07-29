@@ -26,15 +26,22 @@ kuvert.{$DOMAIN:localhost} {
 	reverse_proxy kuvert-web:80
 }
 
-# Catch-all for any other subdomain (typos, old/removed services) - without
-# this, Caddy has no certificate to present for an SNI it doesn't
-# recognize and the TLS handshake itself fails (a bare alert, not even an
-# HTTP response the browser can render a normal warning for). `tls
-# internal` here issues one wildcard cert eagerly at startup covering
-# every subdomain, same local CA as the three sites above; Caddy still
-# routes the three exact hostnames above to their own site block first,
-# this only catches what's left over.
-*.{$DOMAIN:localhost} {
-	tls internal
-	redir https://{$DOMAIN:localhost}{uri}
-}
+# No catch-all site block for other subdomains (typos, old/removed
+# services) anymore - one used to live here, issuing a *.{$DOMAIN}
+# wildcard cert (via `tls internal`, or even without it: any wildcard
+# host address makes Caddy's automatic HTTPS manage a genuine wildcard
+# cert for it regardless, since that's the only way to cover a wildcard
+# address at all) so an unrecognized SNI got a friendly redirect instead
+# of a bare TLS alert. But Caddy's cert selection doesn't scope a
+# wildcard cert to "only the catch-all" - it'll serve that same
+# *.{$DOMAIN} cert for the three real sites above too whenever it's the
+# best/only match available (e.g. right after their own exact-hostname
+# certs expire, before renewal catches up), since it technically covers
+# them. Real browsers reject a wildcard cert whose base domain is a
+# single label with no dot in it (SAN "*.localhost" has none) as a
+# guard against overly-broad wildcards - so real sites under
+# DOMAIN=localhost intermittently fail TLS in the browser this way
+# (curl/openssl -k don't enforce this check, which is how it went
+# unnoticed). Not worth the risk for what it bought: a nicer error for
+# a typo'd/removed subdomain, an edge case, instead of the bare TLS
+# alert it'd get without any site block matching it at all.

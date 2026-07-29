@@ -33,6 +33,17 @@ fit best; add a new section if none fits.
   (no HSTS, X-Content-Type-Options, Referrer-Policy, or frame-ancestors).
   Added a shared snippet with all four, imported by the three real site
   blocks (not the catch-all, which only ever redirects).
+- Removed the catch-all `*.{$DOMAIN}` site added above - its wildcard
+  cert doesn't stay scoped to just its own traffic. Caddy serves it for
+  the three real sites too whenever it's the best/only available match
+  (e.g. right after their own exact-hostname certs expire, before
+  renewal catches up), and real browsers reject a wildcard cert whose
+  base domain is a single label with no dot (`*.localhost` has none) as
+  a guard against overly-broad wildcards - so every real site
+  intermittently failed TLS in an actual browser this way (`curl -k`
+  doesn't enforce this check, which is how it went unnoticed). Back to
+  a bare TLS alert for a typo'd/removed subdomain, a smaller problem
+  than breaking every real one.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
