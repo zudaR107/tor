@@ -44,6 +44,15 @@ fit best; add a new section if none fits.
   doesn't enforce this check, which is how it went unnoticed). Back to
   a bare TLS alert for a typo'd/removed subdomain, a smaller problem
   than breaking every real one.
+- Brought back a friendly redirect for a typo'd/removed subdomain,
+  without the wildcard-cert risk above: a *hostless* catch-all site
+  (`:443`, no host - unlike `*.{$DOMAIN}`, Caddy never folds this into
+  the three real sites' automatic-HTTPS domain set) using on-demand TLS
+  (one exact-hostname cert per subdomain, issued the first time it's
+  actually requested, gated by an `ask` check so this can't become a
+  certificate-issuance oracle for arbitrary hostnames). Every issued
+  cert is an exact match, never a wildcard, so this can't collide with
+  a real site's cert the way the original did.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
