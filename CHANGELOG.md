@@ -53,6 +53,17 @@ fit best; add a new section if none fits.
   certificate-issuance oracle for arbitrary hostnames). Every issued
   cert is an exact match, never a wildcard, so this can't collide with
   a real site's cert the way the original did.
+- Added a narrow `frame-ancestors` exception for `auth.{$DOMAIN}/theme-sync.html`
+  only (`https://{$DOMAIN}` and `https://kuvert.{$DOMAIN}`, not `'self'`,
+  not `*`) - schlussel serves a small hub page there that schloss's and
+  kuvert's frontends embed in a hidden iframe to keep the shared theme
+  preference in sync across origins (their own localStorage can't be
+  shared directly). Every other path on every site keeps the baseline
+  `'none'`. Implemented as a separate `handle` block, not a matched
+  `header` line alongside the unmatched baseline one - tried that first
+  and Caddy silently didn't apply it in written order (confirmed in an
+  isolated test container); mutually-exclusive `handle` blocks work
+  correctly.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
