@@ -64,6 +64,13 @@ fit best; add a new section if none fits.
   and Caddy silently didn't apply it in written order (confirmed in an
   isolated test container); mutually-exclusive `handle` blocks work
   correctly.
+- Reverted the `frame-ancestors` exception above - the iframe hub it was
+  for turned out to be fundamentally broken by Firefox/Safari storage
+  partitioning and was replaced with a plain `fetch` API instead (no
+  framing involved at all). `auth.{$DOMAIN}` is back to a single `handle`
+  sending the baseline `'none'` uniformly, same as the other two sites.
+  Also added kuvert's origin to `SCHLUSSEL_ALLOWED_ORIGINS`'s default -
+  it now calls schlussel's `/theme` endpoint directly, cross-origin.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three
