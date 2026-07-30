@@ -32,8 +32,27 @@
 }
 
 auth.{$DOMAIN:localhost} {
-	import security_headers
-	reverse_proxy schlussel-web:80
+	# The theme-sync hub (a static file schlussel-web serves) needs to be
+	# embeddable in a hidden iframe from schloss's and kuvert's origins -
+	# that's the whole mechanism cross-origin theme sync uses, since
+	# localStorage can't be read across origins directly (see each app's
+	# own ThemeSync usage). Narrow exception, just this one path, just
+	# those two origins - not 'self' (this page never embeds itself) and
+	# not '*' (would let any site iframe it). Needs its own `handle` block,
+	# not a matched `header` line alongside the unmatched one below -
+	# tried that first and it silently lost the override (confirmed via
+	# an isolated test container: Caddy doesn't guarantee same-field
+	# `header` directives apply in the order written when only one of them
+	# has a matcher; `handle`'s mutually-exclusive routing does).
+	handle /theme-sync.html {
+		import security_headers
+		header Content-Security-Policy "frame-ancestors https://{$DOMAIN:localhost} https://kuvert.{$DOMAIN:localhost}"
+		reverse_proxy schlussel-web:80
+	}
+	handle {
+		import security_headers
+		reverse_proxy schlussel-web:80
+	}
 }
 
 kuvert.{$DOMAIN:localhost} {
