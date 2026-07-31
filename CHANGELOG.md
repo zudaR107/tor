@@ -71,6 +71,13 @@ fit best; add a new section if none fits.
   sending the baseline `'none'` uniformly, same as the other two sites.
   Also added kuvert's origin to `SCHLUSSEL_ALLOWED_ORIGINS`'s default -
   it now calls schlussel's `/theme` endpoint directly, cross-origin.
+- Wired the new Tafel task-tracker service into the gateway: a
+  `tafel.{$DOMAIN}` site block (same `security_headers` import as the
+  other three sites), `../tafel/docker-compose.yml` added to the
+  `include:` list, and a new `TAFEL_ALLOWED_ORIGINS` var alongside
+  updates to `SCHLUSSEL_ALLOWED_ORIGINS`/`ALLOWED_RETURN_ORIGINS` to
+  include Tafel's frontend origin (same reasoning as kuvert's own entry
+  above - `ThemeSync` and the PKCE login flow both need it).
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other three

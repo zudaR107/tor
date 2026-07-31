@@ -12,6 +12,7 @@ include:
   - path: ../schlussel/docker-compose.yml
   - path: ../schloss/docker-compose.yml
   - path: ../kuvert/docker-compose.yml
+  - path: ../tafel/docker-compose.yml
 
 services:
   gateway:
