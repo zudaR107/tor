@@ -4,21 +4,21 @@
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
 tor ("gate" in German) is the single-entrypoint reverse-proxy gateway for
-the Schloss platform. It fronts all three services by subdomain so nobody
-needs to remember or type a port.
+the Hof platform. It fronts every service by subdomain so nobody needs to
+remember or type a port.
 
-Part of the [Schloss platform](https://github.com/zudaR107/Hof) — see that
-repo for how all four services fit together.
+Part of the [Hof platform](https://github.com/zudaR107/Hof) — a suite of
+self-hosted personal services:
 
-## How it fits into the platform
-
-Each service is its own repo, named after a German word related to what it
-does:
-
-- [`schloss`](https://github.com/zudaR107/schloss) — the home page / launcher
+- [`schloss`](https://github.com/zudaR107/schloss) — home page / launcher
 - [`schlussel`](https://github.com/zudaR107/schlussel) — auth: accounts, login, tokens
 - [`kuvert`](https://github.com/zudaR107/kuvert) — envelope budgeting
-- **`tor`** (this repo) — the gateway all of the above sit behind
+- [`tafel`](https://github.com/zudaR107/tafel) — task/project tracking
+- **`tor`** (this repo) — reverse-proxy gateway all of the above sit behind
+- [`schloss-ui`](https://github.com/zudaR107/schloss-ui) — shared frontend components
+- [`schloss-server-kit`](https://github.com/zudaR107/schloss-server-kit) — shared backend auth/CORS kit
+
+## How it fits into the platform
 
 tor ships no application code of its own — just a Caddyfile and a
 docker-compose.yml. It routes by `Host:` header to each service's own
