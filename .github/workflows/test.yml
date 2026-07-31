@@ -28,6 +28,11 @@ jobs:
           repository: zudaR107/kuvert
           path: kuvert
 
+      - uses: actions/checkout@v7
+        with:
+          repository: zudaR107/tafel
+          path: tafel
+
       - name: Validate Caddyfile
         run: >
           docker run --rm -v "$PWD/tor/Caddyfile:/etc/caddy/Caddyfile:ro"
