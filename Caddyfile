@@ -46,6 +46,11 @@ tafel.{$DOMAIN:localhost} {
 	reverse_proxy tafel-web:80
 }
 
+zettel.{$DOMAIN:localhost} {
+	import security_headers
+	reverse_proxy zettel-web:80
+}
+
 # Not exposed on the published 80/443 ports - Caddy's own on_demand_tls
 # calls this over loopback inside the container to decide whether an
 # unrecognized SNI is even allowed to get a cert at all.
