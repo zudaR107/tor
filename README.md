@@ -3,10 +3,6 @@
 [![Test](https://github.com/zudaR107/tor/actions/workflows/test.yml/badge.svg)](https://github.com/zudaR107/tor/actions/workflows/test.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
-tor ("gate" in German) is the single-entrypoint reverse-proxy gateway for
-the Hof platform. It fronts every service by subdomain so nobody needs to
-remember or type a port.
-
 Part of the [Hof platform](https://github.com/zudaR107/Hof) — a suite of
 self-hosted personal services:
 
@@ -14,9 +10,14 @@ self-hosted personal services:
 - [`schlussel`](https://github.com/zudaR107/schlussel) — auth: accounts, login, tokens
 - [`kuvert`](https://github.com/zudaR107/kuvert) — envelope budgeting
 - [`tafel`](https://github.com/zudaR107/tafel) — task/project tracking
+- [`zettel`](https://github.com/zudaR107/zettel) — markdown note-taking
 - **`tor`** (this repo) — reverse-proxy gateway all of the above sit behind
 - [`schloss-ui`](https://github.com/zudaR107/schloss-ui) — shared frontend components
 - [`schloss-server-kit`](https://github.com/zudaR107/schloss-server-kit) — shared backend auth/CORS kit
+
+tor ("gate" in German) is the single-entrypoint reverse-proxy gateway for
+the Hof platform. It fronts every service by subdomain so nobody needs to
+remember or type a port.
 
 ## How it fits into the platform
 
@@ -28,10 +29,11 @@ changes to work behind it.
 
 ## Running the whole platform
 
-Assumes the standard layout: `schlussel/`, `schloss/`, `kuvert/`, and `tor/`
-as sibling directories (this is exactly what you get by cloning
-[`Hof`](https://github.com/zudaR107/Hof) with `--recurse-submodules`, or
-cloning all four repos into the same parent folder by hand).
+Assumes the standard layout: `schlussel/`, `schloss/`, `kuvert/`, `tafel/`,
+`zettel/`, and `tor/` as sibling directories (this is exactly what you get
+by cloning [`Hof`](https://github.com/zudaR107/Hof) with
+`--recurse-submodules`, or cloning all six repos into the same parent
+folder by hand).
 
 ```sh
 docker network create schloss-net   # one-time
@@ -39,12 +41,14 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-That's it — this one command starts all three services plus the gateway,
+That's it — this one command starts all five services plus the gateway,
 via `include:` pulling in each sibling repo's own `docker-compose.yml`.
 
 - `https://localhost` — Schloss (home)
 - `https://auth.localhost` — Schlüssel (login/register)
 - `https://kuvert.localhost` — Kuvert
+- `https://tafel.localhost` — Tafel
+- `https://zettel.localhost` — Zettel
 
 `*.localhost` resolves to `127.0.0.1` automatically in every modern browser
 — no `/etc/hosts` editing needed. Caddy auto-upgrades these to HTTPS; since
@@ -92,8 +96,9 @@ running, same as before tor existed).
 ## Production
 
 Set `DOMAIN` to a real domain you control, and point its DNS (plus
-`auth.<domain>` and `kuvert.<domain>`) at this host - see
-`.env.production.example` for a filled-in starting point:
+`auth.<domain>`, `kuvert.<domain>`, `tafel.<domain>`, and
+`zettel.<domain>`) at this host - see `.env.production.example` for a
+filled-in starting point:
 
 ```sh
 cp .env.production.example .env   # then edit DOMAIN to your real domain
@@ -106,7 +111,7 @@ no certificate setup required.
 ### Environment variables
 
 See `.env.example` — one file covers every variable needed by any of the
-four included services, since `include:` shares one Compose project
+five included services, since `include:` shares one Compose project
 environment. The important one is `DOMAIN`; the rest are origin/CORS
 allowlists and cross-service URLs that already default to the matching
 `*.localhost` subdomain scheme.
