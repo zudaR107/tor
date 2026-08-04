@@ -33,22 +33,22 @@
 
 auth.{$DOMAIN:localhost} {
 	import security_headers
-	reverse_proxy schlussel-web:80
+	reverse_proxy schlussel-frontend:80
 }
 
 kuvert.{$DOMAIN:localhost} {
 	import security_headers
-	reverse_proxy kuvert-web:80
+	reverse_proxy kuvert-frontend:80
 }
 
 tafel.{$DOMAIN:localhost} {
 	import security_headers
-	reverse_proxy tafel-web:80
+	reverse_proxy tafel-frontend:80
 }
 
 zettel.{$DOMAIN:localhost} {
 	import security_headers
-	reverse_proxy zettel-web:80
+	reverse_proxy zettel-frontend:80
 }
 
 # Not exposed on the published 80/443 ports - Caddy's own on_demand_tls
