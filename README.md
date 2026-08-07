@@ -11,6 +11,7 @@ self-hosted personal services:
 - [`kuvert`](https://github.com/zudaR107/kuvert) — envelope budgeting
 - [`tafel`](https://github.com/zudaR107/tafel) — task/project tracking
 - [`zettel`](https://github.com/zudaR107/zettel) — markdown note-taking
+- [`glocke`](https://github.com/zudaR107/glocke) — in-app notification center and delivery foundation
 - **`tor`** (this repo) — reverse-proxy gateway all of the above sit behind
 - [`schloss-ui`](https://github.com/zudaR107/schloss-ui) — shared frontend components
 - [`schloss-server-kit`](https://github.com/zudaR107/schloss-server-kit) — shared backend auth/CORS kit
@@ -32,35 +33,38 @@ Compose service on internal port `80`. The current routes are:
 | `kuvert.{$DOMAIN}` | `kuvert-frontend` |
 | `tafel.{$DOMAIN}` | `tafel-frontend` |
 | `zettel.{$DOMAIN}` | `zettel-frontend` |
+| `glocke.{$DOMAIN}` | `glocke-frontend` |
 
-The API services (`schlussel`, `kuvert-backend`, `tafel-backend`, and
-`zettel-backend`) remain internal dependencies and are not direct gateway
-targets.
+The API services (`schlussel`, `kuvert-backend`, `tafel-backend`,
+`zettel-backend`, and `glocke-backend`) remain internal dependencies and
+are not direct gateway targets.
 
 ## Running the whole platform
 
 Assumes the standard layout: `schlussel/`, `schloss/`, `kuvert/`, `tafel/`,
-`zettel/`, and `tor/` as sibling directories (this is exactly what you get
-by cloning [`Hof`](https://github.com/zudaR107/Hof) with
-`--recurse-submodules`, or cloning all six repos into the same parent
-folder by hand).
+`zettel/`, `glocke/`, and `tor/` as sibling directories. All sibling
+checkouts come from cloning [`Hof`](https://github.com/zudaR107/Hof) with
+`--recurse-submodules`.
 
 ```sh
 docker network create schloss-net   # one-time
 cp .env.example .env
+# Generate two different values with `openssl rand -base64 32` and replace
+# the two Glocke HMAC secret placeholders in .env.
 docker compose up -d --build
 ```
 
-That's it — this one command starts all five apps plus the gateway, via
+That's it — this one command starts all six apps plus the gateway, via
 `include:` pulling in each sibling repo's own `docker-compose.yml`. In
-Compose terms that is nine application services plus `gateway`, because
-four apps have separate backend and frontend services.
+Compose terms that is eleven application services plus `gateway`, because
+five apps have separate backend and frontend services.
 
 - `https://localhost` — Schloss (home)
 - `https://auth.localhost` — Schlüssel (login/register)
 - `https://kuvert.localhost` — Kuvert
 - `https://tafel.localhost` — Tafel
 - `https://zettel.localhost` — Zettel
+- `https://glocke.localhost` — Glocke
 
 `*.localhost` resolves to `127.0.0.1` automatically in every modern browser
 — no `/etc/hosts` editing needed. Caddy auto-upgrades these to HTTPS; since
@@ -117,8 +121,8 @@ running, same as before tor existed).
 ## Production
 
 Set `DOMAIN` to a real domain you control, and point its DNS (plus
-`auth.<domain>`, `kuvert.<domain>`, `tafel.<domain>`, and
-`zettel.<domain>`) at this host - see `.env.production.example` for a
+`auth.<domain>`, `kuvert.<domain>`, `tafel.<domain>`, `zettel.<domain>`, and
+`glocke.<domain>`) at this host - see `.env.production.example` for a
 filled-in starting point:
 
 ```sh
@@ -135,7 +139,7 @@ certificate.
 ### Environment variables
 
 See `.env.example` — one file covers every variable needed by any of the
-five included services, since `include:` shares one Compose project
+six included app Compose files, since `include:` shares one Compose project
 environment. The important one is `DOMAIN`; the rest are origin/CORS
 allowlists and cross-service URLs that already default to the matching
 `*.localhost` subdomain scheme.

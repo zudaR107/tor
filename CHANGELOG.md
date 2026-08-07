@@ -92,6 +92,10 @@ fit best; add a new section if none fits.
   `https://localhost` with the path and query preserved. Unknown production
   hosts are denied certificate issuance, receive no Caddy internal-CA
   certificate, and fail the TLS handshake before any HTTP response.
+- Wired Glocke's notification foundation into the gateway: added the
+  `glocke.{$DOMAIN}` route, sibling Compose include, CI checkout and image
+  build checks, explicit route coverage, and local/production environment
+  examples. Tor now fronts six app sites.
 
 ## Docs
 - Repo slug renamed to lowercase for consistency with the other Hof
