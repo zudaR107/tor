@@ -11,6 +11,9 @@ jobs:
     env:
       SCHLUSSEL_TO_GLOCKE_HMAC_SECRET: ci-only-producer-secret-at-least-32-bytes
       GLOCKE_TO_SCHLUSSEL_HMAC_SECRET: ci-only-recipient-secret-at-least-32-bytes
+      KUVERT_TO_GLOCKE_HMAC_SECRET: ci-only-kuvert-producer-secret-at-least-32-bytes
+      TAFEL_TO_GLOCKE_HMAC_SECRET: ci-only-tafel-producer-secret-at-least-32-bytes
+      ZETTEL_TO_GLOCKE_HMAC_SECRET: ci-only-zettel-producer-secret-at-least-32-bytes
     steps:
       - uses: actions/checkout@v7
         with:
