@@ -1,8 +1,9 @@
 # Contributing to tor
 
 Thanks for considering a contribution. tor is just a Caddyfile and a
-docker-compose.yml fronting the other three Schloss services — please keep
-changes focused.
+docker-compose.yml fronting the five Hof apps — please keep changes focused.
+The gateway targets are `schloss`, `schlussel-frontend`, `kuvert-frontend`,
+`tafel-frontend`, and `zettel-frontend`; backend services are internal.
 
 ## Getting set up
 
@@ -14,6 +15,10 @@ See the [README](README.md) for running the whole platform locally.
   checked out alongside it) to confirm the compose file still resolves.
 - If you changed the Caddyfile, validate it:
   `docker run --rm -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile`
+- Run `sh test/validate-gateway.sh`. It checks every public route against
+  the resolved Compose service names, verifies that unknown `*.localhost`
+  hosts get an exact local certificate and redirect, and verifies that an
+  unknown production host gets no internal certificate and fails TLS.
 - Keep commits focused; one logical change per PR is easier to review than
   several bundled together.
 - Write commit messages that explain *why*, not just *what* — the diff

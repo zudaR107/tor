@@ -15,27 +15,28 @@ fit best; add a new section if none fits.
   return_to allowlist for anyone copying this file as-is.
 - Split `ALLOWED_ORIGINS` into `SCHLUSSEL_ALLOWED_ORIGINS` and
   `KUVERT_ALLOWED_ORIGINS` in `.env.example`/`.env.production.example` -
-  one shared name fed the same value into both schlussel and kuvert-api's
-  compose files, silently overriding kuvert-api's own CORS allowlist.
+  one shared name fed the same value into both `schlussel` and
+  `kuvert-backend`'s Compose files, silently overriding `kuvert-backend`'s
+  own CORS allowlist.
   Requires schlussel#46 and kuvert#59's matching compose var renames.
 - Added `SCHLOSS_URL` to `.env.example`/`.env.production.example` -
   kuvert's new header needs a URL to link back to schloss's home page,
   which no existing var covered (the others all point the other way).
 - Fixed the TLS handshake failing outright (`SSL_ERROR_INTERNAL_ERROR_ALERT`
-  in Firefox) on any subdomain that isn't one of the three declared sites
+  in Firefox) on any subdomain that isn't one of the declared app sites
   (e.g. a typo'd `schlussel.localhost`) - Caddy only eagerly provisions
-  certs for the three declared hostnames, so it had nothing to present for
+  certs for declared hostnames, so it had nothing to present for
   an unrecognized SNI and aborted the handshake before any HTTP routing
   could happen. Added a catch-all `*.{$DOMAIN}` site with `tls internal`
-  (one wildcard cert, same local CA as the other three sites) redirecting
+  (one wildcard cert, using the same local CA as the app sites) redirecting
   to the main site.
 - Security audit finding: no response security headers were set anywhere
   (no HSTS, X-Content-Type-Options, Referrer-Policy, or frame-ancestors).
-  Added a shared snippet with all four, imported by the three real site
+  Added a shared snippet with all four, imported by the app site
   blocks (not the catch-all, which only ever redirects).
 - Removed the catch-all `*.{$DOMAIN}` site added above - its wildcard
   cert doesn't stay scoped to just its own traffic. Caddy serves it for
-  the three real sites too whenever it's the best/only available match
+  app sites too whenever it's the best/only available match
   (e.g. right after their own exact-hostname certs expire, before
   renewal catches up), and real browsers reject a wildcard cert whose
   base domain is a single label with no dot (`*.localhost` has none) as
@@ -47,7 +48,7 @@ fit best; add a new section if none fits.
 - Brought back a friendly redirect for a typo'd/removed subdomain,
   without the wildcard-cert risk above: a *hostless* catch-all site
   (`:443`, no host - unlike `*.{$DOMAIN}`, Caddy never folds this into
-  the three real sites' automatic-HTTPS domain set) using on-demand TLS
+  app sites' automatic-HTTPS domain set) using on-demand TLS
   (one exact-hostname cert per subdomain, issued the first time it's
   actually requested, gated by an `ask` check so this can't become a
   certificate-issuance oracle for arbitrary hostnames). Every issued
@@ -68,20 +69,33 @@ fit best; add a new section if none fits.
   for turned out to be fundamentally broken by Firefox/Safari storage
   partitioning and was replaced with a plain `fetch` API instead (no
   framing involved at all). `auth.{$DOMAIN}` is back to a single `handle`
-  sending the baseline `'none'` uniformly, same as the other two sites.
+  sending the baseline `'none'` uniformly, same as the other app sites.
   Also added kuvert's origin to `SCHLUSSEL_ALLOWED_ORIGINS`'s default -
   it now calls schlussel's `/theme` endpoint directly, cross-origin.
 - Wired the new Tafel task-tracker service into the gateway: a
   `tafel.{$DOMAIN}` site block (same `security_headers` import as the
-  other three sites), `../tafel/docker-compose.yml` added to the
+  existing app sites), `../tafel/docker-compose.yml` added to the
   `include:` list, and a new `TAFEL_ALLOWED_ORIGINS` var alongside
   updates to `SCHLUSSEL_ALLOWED_ORIGINS`/`ALLOWED_RETURN_ORIGINS` to
   include Tafel's frontend origin (same reasoning as kuvert's own entry
   above - `ThemeSync` and the PKCE login flow both need it).
+- Wired the new Zettel note-taking app into the gateway: added its
+  `zettel.{$DOMAIN}` route, Compose include, CI checkout, and shared
+  environment variables, bringing the gateway to five app sites.
+- Updated all five reverse-proxy targets to their current Compose service
+  names: `schloss`, `schlussel-frontend`, `kuvert-frontend`,
+  `tafel-frontend`, and `zettel-frontend`. The backend Compose services
+  (`schlussel`, `kuvert-backend`, `tafel-backend`, and `zettel-backend`)
+  remain internal and are not gateway targets.
+- Restricted unknown-host internal TLS to `*.localhost`. Unknown local app
+  hosts receive an exact internal-CA certificate and a `302` redirect to
+  `https://localhost` with the path and query preserved. Unknown production
+  hosts are denied certificate issuance, receive no Caddy internal-CA
+  certificate, and fail the TLS handshake before any HTTP response.
 
 ## Docs
-- Repo slug renamed to lowercase for consistency with the other three
-  services - the project name is now written lowercase everywhere,
+- Repo slug renamed to lowercase for consistency with the other Hof
+  projects - the project name is now written lowercase everywhere,
   including at the start of sentences.
 - License/CI badges, a link to the Hof meta-repo, `.env.production.example`
   for real-domain deployment, and a missing `.gitignore` for `.env`.
