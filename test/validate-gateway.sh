@@ -112,6 +112,14 @@ test_upstreams() {
 			"$expected" "$actual" >&2
 		return 1
 	fi
+
+	case "$actual" in
+	*'glocke.localhost glocke-frontend:80'*) ;;
+	*)
+		printf 'Glocke gateway route is missing from the adapted Caddy configuration.\n' >&2
+		return 1
+		;;
+	esac
 }
 
 test_local_unknown_host() {

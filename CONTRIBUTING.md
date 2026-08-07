@@ -1,9 +1,9 @@
 # Contributing to tor
 
 Thanks for considering a contribution. tor is just a Caddyfile and a
-docker-compose.yml fronting the five Hof apps — please keep changes focused.
+docker-compose.yml fronting the six Hof apps — please keep changes focused.
 The gateway targets are `schloss`, `schlussel-frontend`, `kuvert-frontend`,
-`tafel-frontend`, and `zettel-frontend`; backend services are internal.
+`tafel-frontend`, `zettel-frontend`, and `glocke-frontend`; backend services are internal.
 
 ## Getting set up
 
