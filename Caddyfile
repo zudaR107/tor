@@ -1,20 +1,14 @@
-# On-demand TLS for the catch-all below: instead of eagerly provisioning
-# one *.{$DOMAIN} wildcard cert up front (the earlier, reverted approach
-# - see the catch-all's own comment for why that broke real browsers),
-# issue one exact-hostname leaf cert per subdomain the first time it's
-# actually requested. Two exact-match certs can never collide with each
-# other's SNI, so a typo'd/removed subdomain getting its own cert this
-# way can't affect the three real sites' certs. Gated by `ask`, so this
-# can't be turned into a certificate-issuance oracle for arbitrary
-# hostnames pointed at this server - only *.{$DOMAIN} gets one at all.
+# On-demand TLS is used only by the local-development fallback below.
+# The ask endpoint limits issuance to *.localhost, so an unknown hostname
+# pointed at a production gateway can never receive an internal-CA cert.
 {
 	on_demand_tls {
-		ask http://localhost:9080/ask
+		ask http://127.0.0.1:9080/ask
 	}
 }
 
-# Baseline hardening headers, shared by the three real sites below (not
-# the catch-all, which only ever redirects). None of these apps expect to
+# Baseline hardening headers, shared by the five app sites below (not
+# the unknown-host fallback). None of these apps expect to
 # be embedded in another site, so frame-ancestors is 'none' rather than
 # 'self'.
 (security_headers) {
@@ -51,34 +45,23 @@ zettel.{$DOMAIN:localhost} {
 	reverse_proxy zettel-frontend:80
 }
 
-# Not exposed on the published 80/443 ports - Caddy's own on_demand_tls
-# calls this over loopback inside the container to decide whether an
-# unrecognized SNI is even allowed to get a cert at all.
-:9080 {
-	@allowed expression {http.request.uri.query.domain}.endsWith(".{$DOMAIN:localhost}")
+# Bound to loopback only. Caddy's on_demand_tls policy calls this to decide
+# whether an unrecognized SNI may receive a local-development certificate.
+http://127.0.0.1:9080 {
+	@allowed expression {http.request.uri.query.domain}.endsWith(".localhost")
 	respond @allowed 200
 	respond 403
 }
 
-# Catch-all for any other subdomain (typos, old/removed services). A
-# *literal* wildcard site address here (`*.{$DOMAIN}`) was tried twice
-# and reverted both times: Caddy's automatic HTTPS enumerates it as one
-# domain covering the three real sites above too (they all match
-# `*.{$DOMAIN}`), and - eager wildcard cert or on-demand policy, doesn't
-# matter which - having a real site's exact hostname also fall under a
-# wildcard site address in the same automatic-HTTPS domain set breaks
-# its own certificate issuance outright (confirmed directly: cert
-# fetches for auth.localhost/kuvert.localhost started failing the
-# handshake with an internal error as soon as a `*.{$DOMAIN}` site
-# address existed anywhere in this file, on-demand or not). A *hostless*
-# site address (no host in `:443` below) doesn't have this problem -
-# Caddy never folds it into the named sites' automatic-HTTPS domain set
-# at all, and normal host-matching still means the three sites above
-# take priority for their own exact hostname, this only ever handles
-# what's left over.
+# Unknown-host fallback whose TLS policy permits only typo'd or removed
+# *.localhost apps. A hostless site avoids the invalid *.localhost wildcard
+# certificate Caddy would otherwise provision. Unknown production hosts are
+# denied during TLS setup, before the defensive 421 response can be reached.
 :443 {
 	tls internal {
 		on_demand
 	}
-	redir https://{$DOMAIN:localhost}{uri}
+	@local_unknown host *.localhost
+	redir @local_unknown https://localhost{uri}
+	respond 421
 }

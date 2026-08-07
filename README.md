@@ -22,10 +22,20 @@ remember or type a port.
 ## How it fits into the platform
 
 tor ships no application code of its own — just a Caddyfile and a
-docker-compose.yml. It routes by `Host:` header to each service's own
-existing Caddy-fronted web image (each already serves from `/` on its
-internal port `80`), so none of the other three repos needed any code
-changes to work behind it.
+docker-compose.yml. It routes by `Host:` header to each app's web-facing
+Compose service on internal port `80`. The current routes are:
+
+| Public host | Compose service |
+|---|---|
+| `{$DOMAIN}` | `schloss` |
+| `auth.{$DOMAIN}` | `schlussel-frontend` |
+| `kuvert.{$DOMAIN}` | `kuvert-frontend` |
+| `tafel.{$DOMAIN}` | `tafel-frontend` |
+| `zettel.{$DOMAIN}` | `zettel-frontend` |
+
+The API services (`schlussel`, `kuvert-backend`, `tafel-backend`, and
+`zettel-backend`) remain internal dependencies and are not direct gateway
+targets.
 
 ## Running the whole platform
 
@@ -41,8 +51,10 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-That's it — this one command starts all five services plus the gateway,
-via `include:` pulling in each sibling repo's own `docker-compose.yml`.
+That's it — this one command starts all five apps plus the gateway, via
+`include:` pulling in each sibling repo's own `docker-compose.yml`. In
+Compose terms that is nine application services plus `gateway`, because
+four apps have separate backend and frontend services.
 
 - `https://localhost` — Schloss (home)
 - `https://auth.localhost` — Schlüssel (login/register)
@@ -55,11 +67,20 @@ via `include:` pulling in each sibling repo's own `docker-compose.yml`.
 `localhost` can't get a real Let's Encrypt certificate, it signs them with
 its own local CA instead (see below - one-time browser setup needed).
 
+An unknown local app host such as `https://typo.localhost/path` receives its
+own exact-hostname certificate from that local CA and redirects to
+`https://localhost/path`. The gateway does not issue an internal-CA
+certificate for an unknown production host such as `typo.example.com`:
+the on-demand TLS policy denies it, so the TLS handshake fails before an
+HTTP redirect or response can be sent. This prevents a production gateway
+from acting as an internal-certificate oracle for arbitrary hostnames.
+
 ### Trusting the local HTTPS certificate (one-time, local dev only)
 
-The gateway's certs for `*.localhost` are signed by a CA Caddy generates
-itself and stores in the `caddy-data` volume - your browser doesn't know
-about it yet, so the first visit shows a certificate warning
+The gateway's certificates for its named localhost sites, and exact
+certificates issued for unknown `*.localhost` hosts, are signed by a CA
+Caddy generates and stores in the `caddy-data` volume - your browser
+doesn't know about it yet, so the first visit shows a certificate warning
 (`SEC_ERROR_UNKNOWN_ISSUER` in Firefox, "Not secure" in Chrome). Trust it
 once per machine:
 
@@ -106,7 +127,10 @@ docker compose up -d --build
 ```
 
 Caddy provisions HTTPS automatically via Let's Encrypt for each subdomain —
-no certificate setup required.
+no certificate setup required. The local unknown-host redirect is
+deliberately limited to `*.localhost`; an unknown host under the production
+domain is denied during TLS setup and does not receive Caddy's internal
+certificate.
 
 ### Environment variables
 
